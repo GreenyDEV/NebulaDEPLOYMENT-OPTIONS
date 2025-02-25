@@ -26,4 +26,4 @@ const serverFactory: FastifyServerFactory = (
     return httpServer;
 };
 
-export { serverFactory };
+export { serverFactory, wispOptions };

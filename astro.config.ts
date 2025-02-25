@@ -5,43 +5,46 @@ import tailwind from "@astrojs/tailwind";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 import { epoxyPath } from "@mercuryworkshop/epoxy-transport";
 import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
+import { scramjetPath } from "@mercuryworkshop/scramjet";
 import playformCompress from "@playform/compress";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
-import { scramjetPath } from "@mercuryworkshop/scramjet";
 import icon from "astro-icon";
 import { defineConfig, envField } from "astro/config";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import { version } from "./package.json";
 import { parsedDoc } from "./server/config.js";
+import { wispPlugin } from "./server/vite-plugin-wisp";
 const workerwarePath = fileURLToPath(new URL("./workerware/src", import.meta.url));
 
 export default defineConfig({
-    site: parsedDoc.seo.enabled ? parsedDoc.seo.domain || process.env.SITE : 'http://localhost:4321',
-        env: {
-            schema: {
-                VERSION: envField.string({
-                    context: "client",
-                    access: "public",
-                    optional: true,
-                    default: version
-                }),
-                MARKETPLACE_ENABLED: envField.boolean({
-                    context: "client",
-                    access: "public",
-                    optional: true,
-                    default: parsedDoc.marketplace.enabled
-                }),
-                SEO: envField.string({
-                    context: "client",
-                    access: "public",
-                    optional: true,
-                    default: JSON.stringify({
-                        enabled: parsedDoc.seo.enabled,
-                        domain: new URL(parsedDoc.seo.domain).host
-                    })
+    site: parsedDoc.seo.enabled
+        ? parsedDoc.seo.domain || process.env.SITE
+        : "http://localhost:4321",
+    env: {
+        schema: {
+            VERSION: envField.string({
+                context: "client",
+                access: "public",
+                optional: true,
+                default: version
+            }),
+            MARKETPLACE_ENABLED: envField.boolean({
+                context: "client",
+                access: "public",
+                optional: true,
+                default: parsedDoc.marketplace.enabled
+            }),
+            SEO: envField.string({
+                context: "client",
+                access: "public",
+                optional: true,
+                default: JSON.stringify({
+                    enabled: parsedDoc.seo.enabled,
+                    domain: new URL(parsedDoc.seo.domain).host
                 })
-            }
-        },
+            })
+        }
+    },
     integrations: [
         tailwind(),
         //sitemap(),
@@ -77,7 +80,7 @@ export default defineConfig({
                     {
                         src: `${scramjetPath}/**/*`.replace(/\\/g, "/"),
                         dest: "scram",
-                        overwrite: false 
+                        overwrite: false
                     },
                     {
                         src: `${baremuxPath}/**/*`.replace(/\\/g, "/"),
@@ -90,7 +93,8 @@ export default defineConfig({
                         overwrite: false
                     }
                 ]
-            })
+            }),
+            wispPlugin
         ],
         server: {
             proxy: {
@@ -112,12 +116,6 @@ export default defineConfig({
                 "/packages": {
                     target: "http://localhost:8080",
                     changeOrigin: true
-                },
-                "/wisp/": {
-                    target: "ws://localhost:8080/wisp/",
-                    changeOrigin: true,
-                    ws: true,
-                    rewrite: (path) => path.replace(/^\/wisp\//, "")
                 },
                 "/styles": {
                     target: "http://localhost:8080",

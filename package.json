@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "astro dev --host 0.0.0.0 & tsx --watch server/server.ts",
-    "start": "node server/server.js",
+    "start": "NODE_ENV=production node server/server.js",
     "build:server": "tsc -p server",
     "build:client": "astro check && astro build",
     "build": "npm run build:server & npm run build:client",
